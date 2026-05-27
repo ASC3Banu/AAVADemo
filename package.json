@@ -1,0 +1,52 @@
+{
+  "name": "logistics-monitoring-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Logistics Monitoring System",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix"
+  },
+  "keywords": ["logistics", "monitoring", "tracking", "api"],
+  "author": "Logistics Monitoring Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.0.3",
+    "pg": "^8.10.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.31.0",
+    "mongoose": "^7.0.3",
+    "redis": "^3.1.2",
+    "kafkajs": "^2.2.4",
+    "jsonwebtoken": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "joi": "^17.9.1",
+    "winston": "^3.8.2",
+    "helmet": "^7.0.0",
+    "cors": "^2.8.5",
+    "express-rate-limit": "^6.7.0",
+    "rate-limit-redis": "^3.0.1",
+    "hpp": "^0.2.3",
+    "express-mongo-sanitize": "^2.2.0",
+    "axios": "^1.3.5",
+    "uuid": "^9.0.0",
+    "compression": "^1.7.4"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "jest": "^29.5.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.39.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+}
