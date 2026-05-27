@@ -1,0 +1,121 @@
+graph TB
+    subgraph "Client Layer"
+        WebApp["Web Application<br/>(React.js + TypeScript)<br/>Port: 3000"]
+        MobileApp["Mobile App<br/>(React Native)<br/>iOS/Android"]
+    end
+
+    subgraph "API Gateway Layer"
+        APIGateway["API Gateway<br/>(Kong/AWS API Gateway)<br/>Authentication, Rate Limiting<br/>Port: 8000"]
+    end
+
+    subgraph "Microservices Layer"
+        TrackingService["Tracking Service<br/>(Node.js + Express)<br/>Shipment Management<br/>Port: 8001"]
+        EventService["Event Processing Service<br/>(Java Spring Boot)<br/>Logistics Events<br/>Port: 8002"]
+        AIService["AI Prediction Service<br/>(Python + TensorFlow)<br/>Delay Forecasting<br/>Port: 8003"]
+        AlertService["Alert Service<br/>(Node.js + Express)<br/>Notification Management<br/>Port: 8004"]
+        DashboardService["Dashboard Service<br/>(Node.js + Express)<br/>Analytics & Reporting<br/>Port: 8005"]
+    end
+
+    subgraph "Message Broker Layer"
+        Kafka["Apache Kafka<br/>Event Streaming Platform<br/>Topics: shipments, events,<br/>predictions, alerts<br/>Port: 9092"]
+    end
+
+    subgraph "Data Layer"
+        PostgreSQL[("PostgreSQL<br/>Primary Relational DB<br/>Shipments, Users, Alerts<br/>Port: 5432")]
+        MongoDB[("MongoDB<br/>Document Store<br/>Logistics Events<br/>Port: 27017")]
+        Redis[("Redis<br/>Cache & Session Store<br/>TTL-based Caching<br/>Port: 6379")]
+    end
+
+    subgraph "External Systems"
+        PortSystems["Port Management<br/>Systems<br/>REST APIs"]
+        WarehouseSystems["Warehouse<br/>Management Systems<br/>REST APIs"]
+        TransportProviders["Transport Provider<br/>APIs<br/>REST/SOAP"]
+        CustomsSystems["Customs Systems<br/>EDI/REST APIs"]
+        NotificationServices["Notification Services<br/>(Email/SMS/Push)<br/>SendGrid, Twilio"]
+    end
+
+    subgraph "Infrastructure Layer"
+        Kubernetes["Kubernetes Cluster<br/>Container Orchestration<br/>Multi-Region Deployment"]
+        LoadBalancer["Load Balancer<br/>(AWS ALB/NLB)<br/>SSL Termination"]
+        Monitoring["Monitoring Stack<br/>(Prometheus + Grafana)<br/>Metrics & Alerts"]
+        Logging["Centralized Logging<br/>(ELK Stack)<br/>Log Aggregation"]
+        Tracing["Distributed Tracing<br/>(Jaeger)<br/>Request Tracing"]
+    end
+
+    WebApp-->LoadBalancer
+    MobileApp-->LoadBalancer
+    LoadBalancer-->APIGateway
+
+    APIGateway-->TrackingService
+    APIGateway-->EventService
+    APIGateway-->AIService
+    APIGateway-->AlertService
+    APIGateway-->DashboardService
+
+    TrackingService-->Kafka
+    EventService-->Kafka
+    AIService-->Kafka
+    AlertService-->Kafka
+    DashboardService-->Kafka
+
+    TrackingService-->PostgreSQL
+    TrackingService-->Redis
+    EventService-->MongoDB
+    EventService-->Redis
+    AIService-->PostgreSQL
+    AIService-->MongoDB
+    AIService-->Redis
+    AlertService-->PostgreSQL
+    AlertService-->Redis
+    DashboardService-->PostgreSQL
+    DashboardService-->MongoDB
+    DashboardService-->Redis
+
+    EventService-->PortSystems
+    EventService-->WarehouseSystems
+    EventService-->TransportProviders
+    EventService-->CustomsSystems
+    AlertService-->NotificationServices
+
+    Kubernetes-."orchestrates".->TrackingService
+    Kubernetes-."orchestrates".->EventService
+    Kubernetes-."orchestrates".->AIService
+    Kubernetes-."orchestrates".->AlertService
+    Kubernetes-."orchestrates".->DashboardService
+
+    Monitoring-."monitors".->TrackingService
+    Monitoring-."monitors".->EventService
+    Monitoring-."monitors".->AIService
+    Monitoring-."monitors".->AlertService
+    Monitoring-."monitors".->DashboardService
+    Monitoring-."monitors".->Kafka
+    Monitoring-."monitors".->PostgreSQL
+    Monitoring-."monitors".->MongoDB
+    Monitoring-."monitors".->Redis
+
+    Logging-."collects logs".->TrackingService
+    Logging-."collects logs".->EventService
+    Logging-."collects logs".->AIService
+    Logging-."collects logs".->AlertService
+    Logging-."collects logs".->DashboardService
+
+    Tracing-."traces requests".->APIGateway
+    Tracing-."traces requests".->TrackingService
+    Tracing-."traces requests".->EventService
+    Tracing-."traces requests".->AIService
+    Tracing-."traces requests".->AlertService
+    Tracing-."traces requests".->DashboardService
+
+    classDef clientStyle fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef gatewayStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef serviceStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef dataStyle fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef externalStyle fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+    classDef infraStyle fill:#fff9c4,stroke:#f57f17,stroke-width:2px
+
+    class WebApp,MobileApp clientStyle
+    class APIGateway gatewayStyle
+    class TrackingService,EventService,AIService,AlertService,DashboardService serviceStyle
+    class PostgreSQL,MongoDB,Redis,Kafka dataStyle
+    class PortSystems,WarehouseSystems,TransportProviders,CustomsSystems,NotificationServices externalStyle
+    class Kubernetes,LoadBalancer,Monitoring,Logging,Tracing infraStyle
