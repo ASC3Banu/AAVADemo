@@ -1,32 +1,94 @@
-# Logistics Monitoring System - Backend API
+# AI-Powered Logistics Monitoring System - Backend API
 
 ## Overview
-Enterprise-grade backend API for global shipment tracking, real-time event monitoring, AI-powered delay prediction, and automated alert generation.
+
+Enterprise-grade backend API for the AI-Powered Logistics Monitoring System with comprehensive security, compliance, and observability features.
 
 ## Features
-- **Shipment Tracking**: Create, update, and track shipments globally
-- **Real-time Events**: Monitor logistics events across the supply chain
-- **AI Predictions**: Delay forecasting and route optimization
-- **Alert Management**: Automated alert generation and escalation
-- **Dashboard Analytics**: Operational performance insights
-- **Multi-region Support**: Active-active deployment across regions
 
-## Technology Stack
-- **Runtime**: Node.js 16+
-- **Framework**: Express.js
-- **Databases**: PostgreSQL (shipments, users, alerts), MongoDB (events), Redis (cache)
-- **Message Broker**: Apache Kafka
-- **Authentication**: JWT with RBAC
-- **Security**: AES-256 encryption, TLS 1.3, Helmet, CORS, Rate Limiting
+### Security
+- **Authentication**: OAuth 2.0 + JWT with refresh tokens
+- **Authorization**: Role-Based Access Control (RBAC)
+- **Encryption**: AES-256-GCM for data at rest, TLS 1.3 for data in transit
+- **Input Validation**: Zod schema validation on all endpoints
+- **Rate Limiting**: Configurable per-endpoint rate limits
+- **Account Protection**: Login attempt tracking and account lockout
+- **MFA Support**: Multi-factor authentication ready
 
-## Prerequisites
-- Node.js >= 16.0.0
-- PostgreSQL >= 13
-- MongoDB >= 5.0
-- Redis >= 6.0
-- Apache Kafka >= 3.0
+### Compliance
+- **GDPR**: Consent management, right to be forgotten, data portability
+- **PCI-DSS**: Secure payment data handling
+- **ISO 27001**: Security controls and audit trails
+- **SOC 2**: Comprehensive logging and monitoring
+- **Data Residency**: Configurable data location compliance
 
-## Installation
+### Observability
+- **Structured Logging**: Winston with daily log rotation
+- **Audit Trail**: Separate audit log for compliance
+- **Data Lineage**: Track data access and modifications
+- **PII Filtering**: Automatic redaction of sensitive data in logs
+- **Metrics**: Performance and business metrics tracking
+- **Health Checks**: Liveness and readiness probes
+
+### Performance
+- **Caching**: Redis for session and data caching
+- **Connection Pooling**: Optimized database connections
+- **Compression**: Response compression enabled
+- **Query Optimization**: Indexed database queries
+
+## Architecture
+
+```
+src/
+├── configs/          # Configuration management
+│   ├── app.config.ts
+│   ├── database.config.ts
+│   ├── redis.config.ts
+│   └── logger.config.ts
+├── controllers/      # Request handlers
+│   ├── auth.controller.ts
+│   └── shipment.controller.ts
+├── services/         # Business logic
+│   ├── auth.service.ts
+│   ├── shipment.service.ts
+│   └── metrics.service.ts
+├── repositories/     # Data access layer
+│   └── shipment.repository.ts
+├── models/           # Database models
+│   ├── user.model.ts
+│   ├── shipment.model.ts
+│   └── notification.model.ts
+├── middlewares/      # Express middlewares
+│   ├── auth.middleware.ts
+│   ├── validation.middleware.ts
+│   ├── error.middleware.ts
+│   └── logging.middleware.ts
+├── routes/           # API route definitions
+│   ├── auth.routes.ts
+│   ├── shipment.routes.ts
+│   ├── analytics.routes.ts
+│   ├── notification.routes.ts
+│   ├── user.routes.ts
+│   └── prediction.routes.ts
+├── resources/        # Utility resources
+│   ├── encryption.resource.ts
+│   └── consent.resource.ts
+├── tests/            # Test suites
+│   ├── auth.test.ts
+│   ├── shipment.test.ts
+│   └── integration/
+└── index.ts          # Application entry point
+```
+
+## Getting Started
+
+### Prerequisites
+- Node.js >= 18.0.0
+- MongoDB >= 7.0
+- Redis >= 7.0
+- npm >= 9.0.0
+
+### Installation
 
 ```bash
 # Clone repository
@@ -36,201 +98,204 @@ cd AAVADemo
 # Install dependencies
 npm install
 
-# Configure environment
+# Copy environment variables
 cp .env.example .env
-# Edit .env with your configuration
 
-# Run database migrations
-npm run migrate
-
-# Start server
-npm start
-
-# Development mode with hot reload
-npm run dev
+# Update .env with your configuration
 ```
 
-## Environment Variables
-See `.env.example` for all required environment variables.
-
-## API Documentation
-
-### Base URL
-```
-http://localhost:8001/api/v1
-```
-
-### Authentication
-All endpoints (except `/auth/register` and `/auth/login`) require Bearer token authentication:
-```
-Authorization: Bearer <your-jwt-token>
-```
-
-### Endpoints
-
-#### Authentication
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - User login
-- `POST /auth/logout` - User logout
-- `POST /auth/change-password` - Change password
-
-#### Shipments
-- `GET /shipments` - List all shipments (with filters)
-- `POST /shipments` - Create new shipment
-- `GET /shipments/:id` - Get shipment by ID
-- `GET /shipments/tracking/:trackingNumber` - Track shipment
-- `PUT /shipments/:id` - Update shipment
-- `DELETE /shipments/:id` - Delete shipment
-- `GET /shipments/statistics` - Get shipment statistics
-
-#### Events
-- `GET /events` - List all events
-- `POST /events` - Create new event
-- `GET /events/shipment/:shipmentId` - Get events for shipment
-- `GET /events/shipment/:shipmentId/latest` - Get latest event
-
-#### Alerts
-- `GET /alerts` - List all alerts (with filters)
-- `GET /alerts/:id` - Get alert by ID
-- `POST /alerts/:id/acknowledge` - Acknowledge alert
-- `POST /alerts/:id/resolve` - Resolve alert
-- `POST /alerts/:id/dismiss` - Dismiss alert
-- `GET /alerts/count` - Get active alerts count
-
-#### Predictions
-- `GET /predictions/delay/:shipmentId` - Get delay prediction
-- `GET /predictions/route-optimization/:shipmentId` - Get route optimization
-
-#### Dashboard
-- `GET /dashboard/metrics` - Get dashboard metrics
-
-#### Health Check
-- `GET /health` - Service health status
-
-## Security Features
-
-### Encryption
-- **At Rest**: AES-256-GCM encryption for sensitive data
-- **In Transit**: TLS 1.3 for all communications
-
-### Authentication & Authorization
-- JWT-based authentication
-- Role-Based Access Control (RBAC)
-- Multi-factor authentication support
-- Session management with Redis
-
-### Compliance
-- GDPR compliance (data subject rights)
-- PCI-DSS compliance (payment data security)
-- ISO 27001 aligned security controls
-- Comprehensive audit logging
-- Data retention and purging policies
-
-### Input Validation
-- Joi schema validation
-- XSS protection
-- SQL injection prevention
-- NoSQL injection prevention
-- CSRF protection
-
-### Rate Limiting
-- API rate limiting (100 req/min)
-- Authentication rate limiting (5 attempts/15min)
-- Distributed rate limiting with Redis
-
-## Performance
-
-### Response Times
-- 95th percentile: <200ms
-- 99th percentile: <500ms
-
-### Throughput
-- 10,000+ requests per second
-
-### Caching Strategy
-- Redis caching for frequently accessed data
-- Cache invalidation on data updates
-- Configurable TTL per endpoint
-
-## Monitoring & Observability
-
-### Logging
-- Winston for structured logging
-- Centralized log aggregation ready
-- Log levels: error, warn, info, debug
-
-### Metrics
-- Prometheus-compatible metrics
-- Performance monitoring
-- Error tracking
-
-### Audit Logging
-- All data access logged
-- Security events tracked
-- Compliance event recording
-- PII filtering in logs
-
-## Testing
+### Development
 
 ```bash
-# Run all tests
+# Start development server with hot reload
+npm run dev
+
+# Run tests
 npm test
 
 # Run tests with coverage
 npm run test:coverage
 
-# Run tests in watch mode
-npm run test:watch
+# Run integration tests
+npm run test:integration
+
+# Lint code
+npm run lint
+
+# Format code
+npm run format
 ```
+
+### Production Build
+
+```bash
+# Build TypeScript
+npm run build
+
+# Start production server
+npm start
+```
+
+### Docker Deployment
+
+```bash
+# Build and start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f api
+
+# Stop services
+docker-compose down
+```
+
+## API Documentation
+
+### Base URL
+- Development: `http://localhost:3000`
+- Staging: `https://api-staging.logistics.example.com`
+- Production: `https://api.logistics.example.com`
+
+### Authentication
+
+All API requests (except `/auth/login`) require a valid JWT token in the Authorization header:
+
+```
+Authorization: Bearer <access_token>
+```
+
+### Endpoints
+
+#### Authentication
+- `POST /v1/auth/login` - User login
+- `POST /v1/auth/refresh` - Refresh access token
+- `POST /v1/auth/logout` - User logout
+
+#### Shipments
+- `GET /v1/shipments` - List shipments
+- `GET /v1/shipments/:id` - Get shipment details
+- `POST /v1/shipments` - Create shipment
+- `PATCH /v1/shipments/:id/status` - Update shipment status
+
+#### Analytics
+- `GET /v1/analytics/shipments` - Shipment analytics
+- `GET /v1/analytics/carriers` - Carrier performance
+
+#### Notifications
+- `GET /v1/notifications` - List notifications
+- `PATCH /v1/notifications/:id/read` - Mark as read
+
+#### Users
+- `GET /v1/users/me` - Get user profile
+- `PATCH /v1/users/me` - Update user profile
+
+#### Predictions
+- `POST /v1/predictions/delivery` - Get delivery prediction
+
+### Rate Limits
+- Login: 5 requests/minute
+- Read operations: 1000 requests/minute
+- Write operations: 100 requests/minute
+- Analytics: 100 requests/minute
+
+## Security Best Practices
+
+1. **Environment Variables**: Never commit `.env` files
+2. **Secrets Management**: Use AWS Secrets Manager or Azure Key Vault in production
+3. **TLS**: Always use TLS 1.3 in production
+4. **Password Policy**: Minimum 8 characters, complexity requirements
+5. **Session Management**: 15-minute access token expiry
+6. **Account Lockout**: 5 failed attempts = 15-minute lockout
+7. **Input Validation**: All inputs validated with Zod schemas
+8. **SQL Injection**: MongoDB sanitization enabled
+9. **XSS Protection**: Helmet security headers
+10. **CORS**: Configured allowed origins only
+
+## Compliance
+
+### GDPR
+- User consent tracking
+- Right to access personal data
+- Right to be forgotten
+- Data portability
+- Breach notification procedures
+
+### PCI-DSS
+- Encrypted cardholder data
+- Access controls
+- Regular security testing
+- Audit trails
+
+### Audit Logging
+- All authentication events
+- All data access events
+- All data modification events
+- All administrative actions
+- Logs retained for 7 years
+
+## Monitoring
+
+### Health Checks
+- `/health` - Basic health check
+- `/health/ready` - Readiness probe (checks dependencies)
+
+### Logs
+- Application logs: `logs/application-YYYY-MM-DD.log`
+- Error logs: `logs/error-YYYY-MM-DD.log`
+- Audit logs: `logs/audit-YYYY-MM-DD.log`
+- Data lineage: `logs/data-lineage-YYYY-MM-DD.log`
+
+## Testing
+
+### Unit Tests
+```bash
+npm test
+```
+
+### Integration Tests
+```bash
+npm run test:integration
+```
+
+### Coverage Requirements
+- Branches: 70%
+- Functions: 70%
+- Lines: 70%
+- Statements: 70%
 
 ## Deployment
 
-### Docker
-```bash
-# Build image
-docker build -t logistics-monitoring-api .
+### Environment Setup
+1. Configure environment variables
+2. Set up MongoDB cluster
+3. Set up Redis cluster
+4. Configure TLS certificates
+5. Set up monitoring and alerting
+6. Configure backup procedures
 
-# Run container
-docker run -p 8001:8001 --env-file .env logistics-monitoring-api
-```
-
-### Kubernetes
-```bash
-# Apply configurations
-kubectl apply -f k8s/
-
-# Check deployment
-kubectl get pods -n logistics
-```
-
-## Architecture
-
-### Microservices
-- Tracking Service (Node.js)
-- Event Processing Service (Java Spring Boot)
-- AI Prediction Service (Python/TensorFlow)
-- Alert Service (Node.js)
-- Dashboard Service (Node.js)
-
-### Data Stores
-- PostgreSQL: Shipments, Users, Alerts
-- MongoDB: Logistics Events
-- Redis: Cache & Sessions
-
-### Message Broker
-- Apache Kafka for event streaming
-
-## Contributing
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
-
-## License
-MIT License - see LICENSE file for details
+### CI/CD Pipeline
+1. Code checkout
+2. Dependency installation
+3. Linting
+4. Unit tests
+5. Integration tests
+6. Security scanning
+7. Build Docker image
+8. Push to registry
+9. Deploy to environment
+10. Health check validation
 
 ## Support
-For issues and questions, please open a GitHub issue or contact the development team.
+
+For issues, questions, or contributions:
+- GitHub Issues: https://github.com/ASC3Banu/AAVADemo/issues
+- Documentation: See `/docs` folder
+- Enterprise Support: Contact Enterprise Architecture Team
+
+## License
+
+Proprietary - Internal Use Only
 
 ## Version
-1.0.0
 
-## Authors
-Logistics Monitoring Team
+1.0.0 - Initial Release
