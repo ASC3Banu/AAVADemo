@@ -1,17 +1,45 @@
-FROM node:16-alpine
+# Multi-stage build for production
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
+COPY tsconfig.json ./
 
-RUN npm ci --only=production
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
 
-COPY . .
+# Copy source code
+COPY src ./src
 
-RUN mkdir -p logs
+# Build TypeScript
+RUN npm run build
 
-EXPOSE 8001
+# Production stage
+FROM node:18-alpine
 
-USER node
+WORKDIR /app
 
-CMD ["node", "src/server.js"]
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+
+# Copy built application
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --chown=nodejs:nodejs package*.json ./
+
+# Create logs directory
+RUN mkdir -p logs && chown -R nodejs:nodejs logs
+
+# Switch to non-root user
+USER nodejs
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \n  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Start application
+CMD ["node", "dist/index.js"]

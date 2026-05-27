@@ -1,70 +1,56 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:13-alpine
-    environment:
-      POSTGRES_DB: logistics_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  mongodb:
-    image: mongo:5.0
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-
-  redis:
-    image: redis:6-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-
-  kafka:
-    image: confluentinc/cp-kafka:7.0.1
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.1
-    ports:
-      - "2181:2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: logistics-api
     ports:
-      - "8001:8001"
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URI=mongodb://mongodb:27017
+      - REDIS_HOST=redis
     depends_on:
-      - postgres
       - mongodb
       - redis
-      - kafka
-    environment:
-      NODE_ENV: development
-      POSTGRES_HOST: postgres
-      MONGODB_URI: mongodb://mongodb:27017/logistics_events
-      REDIS_HOST: redis
-      KAFKA_BROKERS: kafka:9092
+    networks:
+      - logistics-network
+    restart: unless-stopped
     volumes:
       - ./logs:/app/logs
 
+  mongodb:
+    image: mongo:7
+    container_name: logistics-mongodb
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - logistics-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: logistics-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - logistics-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
 volumes:
-  postgres_data:
-  mongodb_data:
-  redis_data:
+  mongodb-data:
+  redis-data:
+
+networks:
+  logistics-network:
+    driver: bridge
