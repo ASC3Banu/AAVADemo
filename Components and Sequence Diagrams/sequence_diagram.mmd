@@ -1,95 +1,27 @@
+%% Sequence Diagram for API Code Generation Platform
+%% Standards-compliant Mermaid (mmd)
 sequenceDiagram
-    participant User as "Logistics Manager"
-    participant WebApp as "Web Application<br/>(React.js)"
-    participant APIGateway as "API Gateway<br/>(Kong)"
-    participant TrackingService as "Tracking Service<br/>(Node.js)"
-    participant EventService as "Event Processing<br/>(Java Spring Boot)"
-    participant AIService as "AI Prediction<br/>(Python/TensorFlow)"
-    participant AlertService as "Alert Service<br/>(Node.js)"
-    participant Kafka as "Message Broker<br/>(Apache Kafka)"
-    participant PostgreSQL as "PostgreSQL<br/>(Primary DB)"
-    participant MongoDB as "MongoDB<br/>(Events DB)"
-    participant Redis as "Redis<br/>(Cache)"
-    participant External as "External Systems<br/>(Ports/Warehouses)"
+    participant Dev as Developer
+    participant SpecIngest as Specification Ingestion Interface
+    participant Auth as Authentication/Authorization
+    participant APIGen as API Code Generation Service
+    participant Audit as Audit Logging
 
-    Note over User,External: Shipment Creation and Tracking Flow
-    User->>WebApp: Create new shipment
-    WebApp->>APIGateway: POST /shipments
-    APIGateway->>APIGateway: Authenticate & Rate Limit
-    APIGateway->>TrackingService: Forward request
-    TrackingService->>PostgreSQL: Insert shipment record
-    PostgreSQL-->>TrackingService: Shipment created
-    TrackingService->>Kafka: Publish ShipmentCreated event
-    TrackingService-->>APIGateway: 201 Created response
-    APIGateway-->>WebApp: Shipment details
-    WebApp-->>User: Display confirmation
+    Dev->>SpecIngest: POST /specifications/validate (specification)
+    SpecIngest->>Auth: Validate OAuth2/JWT token & RBAC
+    Auth-->>SpecIngest: Access granted/denied
+    SpecIngest->>SpecIngest: Validate specification schema
+    SpecIngest-->>Dev: Validation result (isValid, errors)
 
-    Note over User,External: Real-time Event Processing Flow
-    External->>APIGateway: POST /shipments/{id}/events
-    APIGateway->>EventService: Forward logistics event
-    EventService->>MongoDB: Store event data
-    EventService->>Kafka: Publish LogisticsEvent
-    Kafka->>AIService: Consume event for analysis
-    AIService->>AIService: Run delay prediction model
-    AIService->>PostgreSQL: Store prediction results
-    AIService->>Kafka: Publish PredictionGenerated event
-    Kafka->>AlertService: Consume prediction event
-    AlertService->>AlertService: Evaluate alert rules
-    alt Delay Predicted
-        AlertService->>PostgreSQL: Create alert record
-        AlertService->>Kafka: Publish AlertGenerated event
-        AlertService->>User: Send notification (email/SMS)
-    end
-    EventService-->>APIGateway: 200 OK
-    APIGateway-->>External: Event processed
+    Dev->>SpecIngest: POST /generate-api (specification, language, options)
+    SpecIngest->>Auth: Validate OAuth2/JWT token & RBAC
+    Auth-->>SpecIngest: Access granted/denied
+    SpecIngest->>APIGen: Send validated spec, language, options
+    APIGen->>Audit: Log code generation event
+    APIGen-->>SpecIngest: codeArchiveUrl, metadata
+    SpecIngest-->>Dev: codeArchiveUrl, metadata
 
-    Note over User,External: Dashboard Analytics Query Flow
-    User->>WebApp: View dashboard
-    WebApp->>APIGateway: GET /dashboard/analytics
-    APIGateway->>TrackingService: Request analytics data
-    TrackingService->>Redis: Check cache
-    alt Cache Hit
-        Redis-->>TrackingService: Return cached data
-    else Cache Miss
-        TrackingService->>PostgreSQL: Query shipment data
-        TrackingService->>MongoDB: Query event data
-        PostgreSQL-->>TrackingService: Shipment metrics
-        MongoDB-->>TrackingService: Event metrics
-        TrackingService->>TrackingService: Aggregate analytics
-        TrackingService->>Redis: Cache results (TTL: 5min)
-    end
-    TrackingService-->>APIGateway: Analytics response
-    APIGateway-->>WebApp: Dashboard data
-    WebApp-->>User: Display analytics
-
-    Note over User,External: AI Prediction Request Flow
-    User->>WebApp: Request delay prediction
-    WebApp->>APIGateway: GET /predictions?shipmentId={id}
-    APIGateway->>AIService: Forward prediction request
-    AIService->>Redis: Check prediction cache
-    alt Cache Hit
-        Redis-->>AIService: Return cached prediction
-    else Cache Miss
-        AIService->>PostgreSQL: Fetch shipment details
-        AIService->>MongoDB: Fetch historical events
-        PostgreSQL-->>AIService: Shipment data
-        MongoDB-->>AIService: Event history
-        AIService->>AIService: Run ML model inference
-        AIService->>AIService: Generate explainability (SHAP)
-        AIService->>Redis: Cache prediction (TTL: 1hr)
-        AIService->>PostgreSQL: Store prediction record
-    end
-    AIService-->>APIGateway: Prediction with confidence score
-    APIGateway-->>WebApp: Prediction results
-    WebApp-->>User: Display prediction & explanation
-
-    Note over User,External: Alert Acknowledgment Flow
-    User->>WebApp: Acknowledge alert
-    WebApp->>APIGateway: POST /alerts/{id}/acknowledge
-    APIGateway->>AlertService: Forward acknowledgment
-    AlertService->>PostgreSQL: Update alert status
-    AlertService->>Kafka: Publish AlertAcknowledged event
-    PostgreSQL-->>AlertService: Alert updated
-    AlertService-->>APIGateway: 200 OK
-    APIGateway-->>WebApp: Acknowledgment confirmed
-    WebApp-->>User: Display success message
+    Dev->>Audit: GET /audit/logs
+    Audit->>Auth: Validate OAuth2/JWT token & RBAC
+    Auth-->>Audit: Access granted/denied
+    Audit-->>Dev: logs (timestamp, action, user)
