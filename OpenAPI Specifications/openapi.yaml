@@ -1,5 +1,215 @@
 openapi: 3.0.3
 info:
-  title: Logistics Monitoring System API
+  title: AI API Code Generation Platform
   description: |
-    Comprehensive API for global shipment tracking
+    An AI-powered platform that ingests technical specifications and generates boilerplate API code, with secure, compliant, and auditable operations.
+    All endpoints require OAuth2/JWT authentication. Input validation, output filtering, and RBAC are enforced at every layer.
+  version: 1.0.0
+  contact:
+    name: Platform Compliance Team
+    email: compliance@example.com
+servers:
+  - url: https://api.example.com
+    description: Production
+  - url: https://sandbox.api.example.com
+    description: Sandbox
+security:
+  - OAuth2: []
+
+paths:
+  /generate-api:
+    post:
+      summary: Generate API code from technical specification
+      description: Generates boilerplate API code from provided technical specification.
+      operationId: generateApiCode
+      tags:
+        - Code Generation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                specification:
+                  description: Technical specification document (JSON/YAML)
+                  type: object
+                  additionalProperties: true
+                language:
+                  description: Target programming language
+                  type: string
+                  example: python
+                options:
+                  description: Generation options
+                  type: object
+                  properties:
+                    auth:
+                      type: boolean
+                      description: Include authentication code
+                    logging:
+                      type: boolean
+                      description: Include logging code
+      responses:
+        '200':
+          description: Successfully generated code archive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  codeArchiveUrl:
+                    type: string
+                    description: Download link for generated code
+                  metadata:
+                    type: object
+                    properties:
+                      language:
+                        type: string
+                      generationTime:
+                        type: string
+                        format: date-time
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        'default':
+          $ref: '#/components/responses/DefaultError'
+      security:
+        - OAuth2: []
+
+  /specifications/validate:
+    post:
+      summary: Validate technical specification
+      description: Validates the provided technical specification document.
+      operationId: validateSpecification
+      tags:
+        - Specifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                specification:
+                  description: Technical specification document (JSON/YAML)
+                  type: object
+                  additionalProperties: true
+      responses:
+        '200':
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isValid:
+                    type: boolean
+                  errors:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        'default':
+          $ref: '#/components/responses/DefaultError'
+      security:
+        - OAuth2: []
+
+  /audit/logs:
+    get:
+      summary: Retrieve audit logs
+      description: Retrieves audit logs for compliance and monitoring.
+      operationId: getAuditLogs
+      tags:
+        - Audit
+      responses:
+        '200':
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  logs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp:
+                          type: string
+                          format: date-time
+                        action:
+                          type: string
+                        user:
+                          type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        'default':
+          $ref: '#/components/responses/DefaultError'
+      security:
+        - OAuth2: []
+
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.example.com/oauth/authorize
+          tokenUrl: https://auth.example.com/oauth/token
+          scopes:
+            admin: Admin access
+            developer: Developer access
+            auditor: Auditor access
+  responses:
+    BadRequest:
+      description: Bad request due to invalid/unsupported input
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Specification conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Insufficient privileges
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    DefaultError:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: object
+              additionalProperties: true
