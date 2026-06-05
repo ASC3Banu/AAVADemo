@@ -1,45 +1,34 @@
-# Multi-stage build for production
-FROM node:18-alpine AS builder
+FROM python:3.11-slim
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-COPY tsconfig.json ./
+# Install system dependencies
+RUN apt-get update && apt-get install -y \n    gcc \n    postgresql-client \n    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Copy requirements
+COPY requirements.txt .
 
-# Copy source code
-COPY src ./src
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Build TypeScript
-RUN npm run build
-
-# Production stage
-FROM node:18-alpine
-
-WORKDIR /app
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
-
-# Copy built application
-COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --chown=nodejs:nodejs package*.json ./
+# Copy application code
+COPY src/ ./src/
+COPY alembic/ ./alembic/
+COPY alembic.ini .
 
 # Create logs directory
-RUN mkdir -p logs && chown -R nodejs:nodejs logs
+RUN mkdir -p logs
 
-# Switch to non-root user
-USER nodejs
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV ENVIRONMENT=production
 
 # Expose port
-EXPOSE 3000
+EXPOSE 8000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \n  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \n    CMD python -c "import requests; requests.get('http://localhost:8000/health')"
 
-# Start application
-CMD ["node", "dist/index.js"]
+# Run application
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]

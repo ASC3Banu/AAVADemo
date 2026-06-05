@@ -1,55 +1,69 @@
 version: '3.8'
 
 services:
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: logistics-api
+  app:
+    build: .
     ports:
-      - '3000:3000'
+      - "8000:8000"
     environment:
-      - NODE_ENV=production
-      - DATABASE_URI=mongodb://mongodb:27017
-      - REDIS_HOST=redis
+      - DATABASE_URL=postgresql://logistics_user:secure_password@db:5432/logistics_db
+      - REDIS_URL=redis://redis:6379
+      - ENVIRONMENT=production
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_REFRESH_SECRET_KEY=${JWT_REFRESH_SECRET_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
     depends_on:
-      - mongodb
+      - db
       - redis
-    networks:
-      - logistics-network
-    restart: unless-stopped
     volumes:
       - ./logs:/app/logs
-
-  mongodb:
-    image: mongo:7
-    container_name: logistics-mongodb
-    ports:
-      - '27017:27017'
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
-    volumes:
-      - mongodb-data:/data/db
+    restart: unless-stopped
     networks:
       - logistics-network
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=logistics_db
+      - POSTGRES_USER=logistics_user
+      - POSTGRES_PASSWORD=secure_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
     restart: unless-stopped
+    networks:
+      - logistics-network
 
   redis:
     image: redis:7-alpine
-    container_name: logistics-redis
     ports:
-      - '6379:6379'
+      - "6379:6379"
     volumes:
-      - redis-data:/data
+      - redis_data:/data
+    restart: unless-stopped
     networks:
       - logistics-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
     restart: unless-stopped
-    command: redis-server --appendonly yes
+    networks:
+      - logistics-network
 
 volumes:
-  mongodb-data:
-  redis-data:
+  postgres_data:
+  redis_data:
+  prometheus_data:
 
 networks:
   logistics-network:

@@ -1,301 +1,215 @@
-# AI-Powered Logistics Monitoring System - Backend API
+# AI-Powered Logistics Monitoring System
 
 ## Overview
-
-Enterprise-grade backend API for the AI-Powered Logistics Monitoring System with comprehensive security, compliance, and observability features.
+Enterprise-grade backend system for AI-powered logistics monitoring and tracking.
 
 ## Features
+- ✅ RESTful API with OpenAPI 3.0 specification
+- ✅ OAuth 2.0 authentication with JWT tokens
+- ✅ Role-Based Access Control (RBAC)
+- ✅ Multi-Factor Authentication (MFA)
+- ✅ AES-256 encryption for sensitive data
+- ✅ TLS 1.3 for data in transit
+- ✅ Comprehensive audit logging
+- ✅ Data lineage tracking
+- ✅ PII/PHI/PCI data filtering
+- ✅ Rate limiting (Standard/Premium/Enterprise tiers)
+- ✅ AI-powered predictive analytics
+- ✅ Real-time shipment tracking
+- ✅ Webhook integrations
+- ✅ Prometheus metrics
 
-### Security
-- **Authentication**: OAuth 2.0 + JWT with refresh tokens
-- **Authorization**: Role-Based Access Control (RBAC)
-- **Encryption**: AES-256-GCM for data at rest, TLS 1.3 for data in transit
-- **Input Validation**: Zod schema validation on all endpoints
-- **Rate Limiting**: Configurable per-endpoint rate limits
-- **Account Protection**: Login attempt tracking and account lockout
-- **MFA Support**: Multi-factor authentication ready
+## Compliance
+- ✅ SOC 2 Type II
+- ✅ GDPR
+- ✅ PCI-DSS
+- ✅ ISO 27001
 
-### Compliance
-- **GDPR**: Consent management, right to be forgotten, data portability
-- **PCI-DSS**: Secure payment data handling
-- **ISO 27001**: Security controls and audit trails
-- **SOC 2**: Comprehensive logging and monitoring
-- **Data Residency**: Configurable data location compliance
+## Technology Stack
+- **Framework:** FastAPI 0.109.0
+- **Database:** PostgreSQL 15
+- **Cache:** Redis 7
+- **Language:** Python 3.11
+- **Monitoring:** Prometheus
 
-### Observability
-- **Structured Logging**: Winston with daily log rotation
-- **Audit Trail**: Separate audit log for compliance
-- **Data Lineage**: Track data access and modifications
-- **PII Filtering**: Automatic redaction of sensitive data in logs
-- **Metrics**: Performance and business metrics tracking
-- **Health Checks**: Liveness and readiness probes
-
-### Performance
-- **Caching**: Redis for session and data caching
-- **Connection Pooling**: Optimized database connections
-- **Compression**: Response compression enabled
-- **Query Optimization**: Indexed database queries
-
-## Architecture
-
+## Project Structure
 ```
 src/
-├── configs/          # Configuration management
-│   ├── app.config.ts
-│   ├── database.config.ts
-│   ├── redis.config.ts
-│   └── logger.config.ts
-├── controllers/      # Request handlers
-│   ├── auth.controller.ts
-│   └── shipment.controller.ts
-├── services/         # Business logic
-│   ├── auth.service.ts
-│   ├── shipment.service.ts
-│   └── metrics.service.ts
-├── repositories/     # Data access layer
-│   └── shipment.repository.ts
-├── models/           # Database models
-│   ├── user.model.ts
-│   ├── shipment.model.ts
-│   └── notification.model.ts
-├── middlewares/      # Express middlewares
-│   ├── auth.middleware.ts
-│   ├── validation.middleware.ts
-│   ├── error.middleware.ts
-│   └── logging.middleware.ts
-├── routes/           # API route definitions
-│   ├── auth.routes.ts
-│   ├── shipment.routes.ts
-│   ├── analytics.routes.ts
-│   ├── notification.routes.ts
-│   ├── user.routes.ts
-│   └── prediction.routes.ts
-├── resources/        # Utility resources
-│   ├── encryption.resource.ts
-│   └── consent.resource.ts
-├── tests/            # Test suites
-│   ├── auth.test.ts
-│   ├── shipment.test.ts
-│   └── integration/
-└── index.ts          # Application entry point
+├── main.py                 # Application entry point
+├── controllers/            # API controllers
+│   ├── auth_controller.py
+│   ├── shipment_controller.py
+│   ├── analytics_controller.py
+│   ├── notification_controller.py
+│   └── integration_controller.py
+├── services/               # Business logic
+│   ├── auth_service.py
+│   ├── shipment_service.py
+│   ├── analytics_service.py
+│   ├── notification_service.py
+│   └── integration_service.py
+├── repositories/           # Data access layer
+│   ├── user_repository.py
+│   ├── shipment_repository.py
+│   ├── analytics_repository.py
+│   ├── notification_repository.py
+│   └── integration_repository.py
+├── models/                 # Data models
+│   ├── auth_models.py
+│   ├── shipment_models.py
+│   ├── analytics_models.py
+│   ├── notification_models.py
+│   └── integration_models.py
+├── resources/              # Cross-cutting concerns
+│   ├── encryption_service.py
+│   ├── audit_logger.py
+│   ├── rate_limiter.py
+│   ├── rbac.py
+│   ├── pii_filter.py
+│   ├── data_lineage.py
+│   └── ml_service.py
+├── configs/                # Configuration
+│   ├── app_config.py
+│   ├── database.py
+│   ├── logging_config.py
+│   └── security_config.py
+└── tests/                  # Test suite
+    ├── test_auth_controller.py
+    ├── test_shipment_controller.py
+    ├── test_analytics_service.py
+    ├── test_encryption_service.py
+    ├── test_rate_limiter.py
+    ├── test_pii_filter.py
+    └── test_integration.py
 ```
 
-## Getting Started
+## Installation
 
 ### Prerequisites
-- Node.js >= 18.0.0
-- MongoDB >= 7.0
-- Redis >= 7.0
-- npm >= 9.0.0
+- Python 3.11+
+- PostgreSQL 15+
+- Redis 7+
+- Docker (optional)
 
-### Installation
-
+### Local Setup
+1. Clone the repository
 ```bash
-# Clone repository
 git clone https://github.com/ASC3Banu/AAVADemo.git
 cd AAVADemo
+```
 
-# Install dependencies
-npm install
+2. Create virtual environment
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-# Copy environment variables
+3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+4. Configure environment
+```bash
 cp .env.example .env
-
-# Update .env with your configuration
+# Edit .env with your configuration
 ```
 
-### Development
-
+5. Initialize database
 ```bash
-# Start development server with hot reload
-npm run dev
-
-# Run tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run integration tests
-npm run test:integration
-
-# Lint code
-npm run lint
-
-# Format code
-npm run format
+alembic upgrade head
 ```
 
-### Production Build
-
+6. Run application
 ```bash
-# Build TypeScript
-npm run build
-
-# Start production server
-npm start
+uvicorn src.main:app --reload
 ```
 
-### Docker Deployment
-
+### Docker Setup
 ```bash
-# Build and start all services
 docker-compose up -d
-
-# View logs
-docker-compose logs -f api
-
-# Stop services
-docker-compose down
 ```
 
 ## API Documentation
-
-### Base URL
-- Development: `http://localhost:3000`
-- Staging: `https://api-staging.logistics.example.com`
-- Production: `https://api.logistics.example.com`
-
-### Authentication
-
-All API requests (except `/auth/login`) require a valid JWT token in the Authorization header:
-
-```
-Authorization: Bearer <access_token>
-```
-
-### Endpoints
-
-#### Authentication
-- `POST /v1/auth/login` - User login
-- `POST /v1/auth/refresh` - Refresh access token
-- `POST /v1/auth/logout` - User logout
-
-#### Shipments
-- `GET /v1/shipments` - List shipments
-- `GET /v1/shipments/:id` - Get shipment details
-- `POST /v1/shipments` - Create shipment
-- `PATCH /v1/shipments/:id/status` - Update shipment status
-
-#### Analytics
-- `GET /v1/analytics/shipments` - Shipment analytics
-- `GET /v1/analytics/carriers` - Carrier performance
-
-#### Notifications
-- `GET /v1/notifications` - List notifications
-- `PATCH /v1/notifications/:id/read` - Mark as read
-
-#### Users
-- `GET /v1/users/me` - Get user profile
-- `PATCH /v1/users/me` - Update user profile
-
-#### Predictions
-- `POST /v1/predictions/delivery` - Get delivery prediction
-
-### Rate Limits
-- Login: 5 requests/minute
-- Read operations: 1000 requests/minute
-- Write operations: 100 requests/minute
-- Analytics: 100 requests/minute
-
-## Security Best Practices
-
-1. **Environment Variables**: Never commit `.env` files
-2. **Secrets Management**: Use AWS Secrets Manager or Azure Key Vault in production
-3. **TLS**: Always use TLS 1.3 in production
-4. **Password Policy**: Minimum 8 characters, complexity requirements
-5. **Session Management**: 15-minute access token expiry
-6. **Account Lockout**: 5 failed attempts = 15-minute lockout
-7. **Input Validation**: All inputs validated with Zod schemas
-8. **SQL Injection**: MongoDB sanitization enabled
-9. **XSS Protection**: Helmet security headers
-10. **CORS**: Configured allowed origins only
-
-## Compliance
-
-### GDPR
-- User consent tracking
-- Right to access personal data
-- Right to be forgotten
-- Data portability
-- Breach notification procedures
-
-### PCI-DSS
-- Encrypted cardholder data
-- Access controls
-- Regular security testing
-- Audit trails
-
-### Audit Logging
-- All authentication events
-- All data access events
-- All data modification events
-- All administrative actions
-- Logs retained for 7 years
-
-## Monitoring
-
-### Health Checks
-- `/health` - Basic health check
-- `/health/ready` - Readiness probe (checks dependencies)
-
-### Logs
-- Application logs: `logs/application-YYYY-MM-DD.log`
-- Error logs: `logs/error-YYYY-MM-DD.log`
-- Audit logs: `logs/audit-YYYY-MM-DD.log`
-- Data lineage: `logs/data-lineage-YYYY-MM-DD.log`
+Once running, access:
+- Swagger UI: http://localhost:8000/api/docs
+- ReDoc: http://localhost:8000/api/redoc
+- OpenAPI JSON: http://localhost:8000/api/openapi.json
 
 ## Testing
-
-### Unit Tests
 ```bash
-npm test
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=src --cov-report=html
+
+# Run specific test file
+pytest src/tests/test_auth_controller.py
 ```
 
-### Integration Tests
+## Monitoring
+- Health Check: http://localhost:8000/health
+- Metrics: http://localhost:8000/metrics
+- Prometheus: http://localhost:9090
+
+## Security
+
+### Authentication
+1. Obtain access token:
 ```bash
-npm run test:integration
+curl -X POST http://localhost:8000/api/v1/auth/login \n  -H "Content-Type: application/json" \n  -d '{"email":"user@example.com","password":"SecurePass123!"}'
 ```
 
-### Coverage Requirements
-- Branches: 70%
-- Functions: 70%
-- Lines: 70%
-- Statements: 70%
+2. Use token in requests:
+```bash
+curl -X GET http://localhost:8000/api/v1/shipments \n  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+### Rate Limiting
+- Standard: 1,000 requests/hour
+- Premium: 10,000 requests/hour
+- Enterprise: 100,000 requests/hour
 
 ## Deployment
 
-### Environment Setup
-1. Configure environment variables
-2. Set up MongoDB cluster
-3. Set up Redis cluster
-4. Configure TLS certificates
-5. Set up monitoring and alerting
-6. Configure backup procedures
+### Production Checklist
+- [ ] Change all default secrets in `.env`
+- [ ] Enable HTTPS/TLS 1.3
+- [ ] Configure firewall rules
+- [ ] Set up database backups
+- [ ] Configure log rotation
+- [ ] Enable monitoring alerts
+- [ ] Review RBAC permissions
+- [ ] Conduct security audit
+- [ ] Load test the system
+- [ ] Document runbooks
 
-### CI/CD Pipeline
-1. Code checkout
-2. Dependency installation
-3. Linting
-4. Unit tests
-5. Integration tests
-6. Security scanning
-7. Build Docker image
-8. Push to registry
-9. Deploy to environment
-10. Health check validation
-
-## Support
-
-For issues, questions, or contributions:
-- GitHub Issues: https://github.com/ASC3Banu/AAVADemo/issues
-- Documentation: See `/docs` folder
-- Enterprise Support: Contact Enterprise Architecture Team
+## Contributing
+1. Fork the repository
+2. Create feature branch
+3. Commit changes
+4. Push to branch
+5. Create Pull Request
 
 ## License
+Proprietary - All rights reserved
 
-Proprietary - Internal Use Only
+## Support
+For support, contact: api-support@logistics-monitoring.example.com
 
-## Version
+## Version History
+- v1.0.0 (2024) - Initial release
 
-1.0.0 - Initial Release
+## Audit Log
+All operations are logged in:
+- `logs/app.log` - Application logs
+- `logs/audit.log` - Audit trail
+- `logs/data_lineage.log` - Data lineage tracking
+
+## Compliance Documentation
+See `/docs` folder for:
+- Security policies
+- Compliance certifications
+- Audit reports
+- Architecture diagrams
