@@ -4,14 +4,14 @@ info:
   description: |
     Enterprise-grade API for AI-powered logistics monitoring and tracking system.
     
-    ## Features
+    Features:
     - Real-time shipment tracking
     - AI-powered predictive analytics
     - Multi-carrier integration
     - Event-driven notifications
     - Comprehensive analytics and reporting
     
-    ## Authentication
+    Authentication:
     - OAuth 2.0 with JWT tokens
     - API Key authentication for service accounts
     - Token expiration: 15 minutes (access)
