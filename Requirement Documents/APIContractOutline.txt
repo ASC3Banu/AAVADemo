@@ -1,57 +1,404 @@
-API Contract Outline
+AI-POWERED LOGISTICS MONITORING SYSTEM
+API CONTRACT OUTLINE
 
-Endpoint: /generate-api
-- Method: POST
-- Description: Generates boilerplate API code from provided technical specification.
-- Request Schema:
-  {
-    "specification": "object (JSON/YAML)",
-    "language": "string (e.g., python, nodejs)",
-    "options": { "auth": "boolean", "logging": "boolean" }
-  }
-- Response Schema:
-  {
-    "codeArchiveUrl": "string (download link)",
-    "metadata": { "language": "string", "generationTime": "string" }
-  }
-- Error Handling:
-  - 400 Bad Request: Invalid or unsupported specification
-  - 401 Unauthorized: Authentication failed
-  - 409 Conflict: Specification conflicts with existing code
+================================================================================
+DOCUMENT CONTROL
+================================================================================
 
-Endpoint: /specifications/validate
-- Method: POST
-- Description: Validates the provided technical specification document.
-- Request Schema:
-  {
-    "specification": "object (JSON/YAML)"
-  }
-- Response Schema:
-  {
-    "isValid": "boolean",
-    "errors": ["string"]
-  }
-- Error Handling:
-  - 400 Bad Request: Invalid specification format
-  - 401 Unauthorized: Authentication failed
+Version: 1.0
+Date: 2024
+Status: Final
+Classification: Internal
+Owner: Enterprise Architecture Team
+API Version: v1
+Base URL: https://api.logistics-monitoring.example.com/v1
 
-Endpoint: /audit/logs
-- Method: GET
-- Description: Retrieves audit logs for compliance and monitoring.
-- Request Schema: N/A
-- Response Schema:
-  {
-    "logs": [ { "timestamp": "string", "action": "string", "user": "string" } ]
-  }
-- Error Handling:
-  - 401 Unauthorized: Authentication failed
-  - 403 Forbidden: Insufficient privileges
+================================================================================
+INTRODUCTION
+================================================================================
 
-All endpoints require OAuth2/JWT authentication. Input validation, output filtering, and RBAC are enforced at every layer. Errors are returned in a standardized JSON format:
+This document outlines the API contracts for the AI-Powered Logistics Monitoring System.
+
+API Design Principles:
+- RESTful design following OpenAPI 3.0 specification
+- Resource-oriented URLs
+- Standard HTTP methods (GET, POST, PUT, PATCH, DELETE)
+- JSON request and response bodies
+- Consistent error handling
+- Versioned APIs with backward compatibility
+
+Authentication:
+- OAuth 2.0 with JWT tokens
+- API Key authentication for service accounts
+- Token expiration: 15 minutes (access), 7 days (refresh)
+
+Rate Limiting:
+- Standard tier: 1,000 requests per hour
+- Premium tier: 10,000 requests per hour
+- Enterprise tier: 100,000 requests per hour
+
+================================================================================
+1. AUTHENTICATION APIs
+================================================================================
+
+1.1 User Authentication
+Endpoint: /auth/login
+Method: POST
+Description: Authenticate user and obtain access token
+Authentication Required: No
+Rate Limiting: 10 requests per minute per IP
+
+Request Schema:
 {
-  "error": {
-    "code": "string",
-    "message": "string",
-    "details": "object"
+  "email": "string (required)",
+  "password": "string (required)",
+  "mfa_code": "string (optional)"
+}
+
+Response Schema (200 OK):
+{
+  "access_token": "string",
+  "refresh_token": "string",
+  "token_type": "Bearer",
+  "expires_in": 900,
+  "user": {
+    "id": "string",
+    "email": "string",
+    "name": "string",
+    "roles": ["string"]
   }
 }
+
+Error Codes: 400, 401, 403, 429, 500
+
+1.2 Token Refresh
+Endpoint: /auth/refresh
+Method: POST
+Description: Refresh access token
+Authentication Required: Yes
+Rate Limiting: Standard
+
+Request Schema:
+{
+  "refresh_token": "string (required)"
+}
+
+Response Schema (200 OK):
+{
+  "access_token": "string",
+  "token_type": "Bearer",
+  "expires_in": 900
+}
+
+Error Codes: 400, 401, 500
+
+================================================================================
+2. SHIPMENT TRACKING APIs
+================================================================================
+
+2.1 Create Shipment
+Endpoint: /shipments
+Method: POST
+Description: Create a new shipment record
+Authentication Required: Yes
+Rate Limiting: Standard
+
+Request Schema:
+{
+  "tracking_number": "string (optional)",
+  "origin": {
+    "address": "string (required)",
+    "city": "string (required)",
+    "country": "string (required)",
+    "postal_code": "string (required)"
+  },
+  "destination": {
+    "address": "string (required)",
+    "city": "string (required)",
+    "country": "string (required)",
+    "postal_code": "string (required)"
+  },
+  "carrier_id": "string (required)",
+  "service_type": "string (required)",
+  "package_details": {
+    "weight": "number (required)",
+    "dimensions": {
+      "length": "number",
+      "width": "number",
+      "height": "number"
+    }
+  }
+}
+
+Response Schema (201 Created):
+{
+  "id": "string",
+  "tracking_number": "string",
+  "status": "string",
+  "created_at": "string",
+  "_links": {
+    "self": "string",
+    "tracking": "string"
+  }
+}
+
+Error Codes: 400, 401, 403, 409, 422, 500
+
+2.2 Get Shipment
+Endpoint: /shipments/{shipment_id}
+Method: GET
+Description: Retrieve shipment details
+Authentication Required: Yes
+Rate Limiting: Standard
+
+Response Schema (200 OK):
+{
+  "id": "string",
+  "tracking_number": "string",
+  "status": "string",
+  "current_location": {},
+  "origin": {},
+  "destination": {},
+  "carrier": {},
+  "events": []
+}
+
+Error Codes: 400, 401, 403, 404, 500
+
+2.3 List Shipments
+Endpoint: /shipments
+Method: GET
+Description: List shipments with pagination
+Authentication Required: Yes
+Rate Limiting: Standard
+
+Query Parameters:
+- page: integer (default: 1)
+- page_size: integer (default: 20, max: 100)
+- status: string
+- carrier_id: string
+
+Response Schema (200 OK):
+{
+  "data": [],
+  "pagination": {
+    "page": 1,
+    "page_size": 20,
+    "total_pages": 10,
+    "total_items": 200
+  }
+}
+
+Error Codes: 400, 401, 403, 500
+
+================================================================================
+3. ANALYTICS APIs
+================================================================================
+
+3.1 Get Performance Metrics
+Endpoint: /analytics/performance
+Method: GET
+Description: Retrieve performance metrics
+Authentication Required: Yes
+Rate Limiting: Standard
+
+Query Parameters:
+- start_date: string (ISO 8601)
+- end_date: string (ISO 8601)
+- metric_type: string
+
+Response Schema (200 OK):
+{
+  "metrics": {
+    "on_time_delivery_rate": "number",
+    "average_delivery_time": "number",
+    "total_shipments": "integer"
+  },
+  "period": {
+    "start": "string",
+    "end": "string"
+  }
+}
+
+Error Codes: 400, 401, 403, 500
+
+3.2 Get Predictive Analytics
+Endpoint: /analytics/predictions
+Method: POST
+Description: Get AI-powered predictions
+Authentication Required: Yes
+Rate Limiting: Premium
+
+Request Schema:
+{
+  "shipment_id": "string (required)",
+  "prediction_type": "string (required)"
+}
+
+Response Schema (200 OK):
+{
+  "shipment_id": "string",
+  "predictions": {
+    "estimated_delivery": "string",
+    "delay_probability": "number",
+    "risk_factors": []
+  }
+}
+
+Error Codes: 400, 401, 403, 404, 500
+
+================================================================================
+4. NOTIFICATION APIs
+================================================================================
+
+4.1 Subscribe to Notifications
+Endpoint: /notifications/subscriptions
+Method: POST
+Description: Subscribe to shipment notifications
+Authentication Required: Yes
+Rate Limiting: Standard
+
+Request Schema:
+{
+  "shipment_id": "string (required)",
+  "notification_types": ["string"],
+  "channels": ["email", "sms", "webhook"],
+  "webhook_url": "string (optional)"
+}
+
+Response Schema (201 Created):
+{
+  "subscription_id": "string",
+  "shipment_id": "string",
+  "status": "active"
+}
+
+Error Codes: 400, 401, 403, 422, 500
+
+4.2 Get Notifications
+Endpoint: /notifications
+Method: GET
+Description: Retrieve user notifications
+Authentication Required: Yes
+Rate Limiting: Standard
+
+Query Parameters:
+- unread_only: boolean (default: false)
+- page: integer
+- page_size: integer
+
+Response Schema (200 OK):
+{
+  "data": [
+    {
+      "id": "string",
+      "type": "string",
+      "message": "string",
+      "read": "boolean",
+      "created_at": "string"
+    }
+  ],
+  "pagination": {}
+}
+
+Error Codes: 400, 401, 403, 500
+
+================================================================================
+5. INTEGRATION APIs
+================================================================================
+
+5.1 Webhook Registration
+Endpoint: /integrations/webhooks
+Method: POST
+Description: Register webhook endpoint
+Authentication Required: Yes
+Rate Limiting: Standard
+
+Request Schema:
+{
+  "url": "string (required)",
+  "events": ["string"],
+  "secret": "string (optional)"
+}
+
+Response Schema (201 Created):
+{
+  "webhook_id": "string",
+  "url": "string",
+  "status": "active"
+}
+
+Error Codes: 400, 401, 403, 422, 500
+
+5.2 External System Integration
+Endpoint: /integrations/external-systems
+Method: POST
+Description: Configure external system integration
+Authentication Required: Yes
+Rate Limiting: Standard
+
+Request Schema:
+{
+  "system_type": "string (required)",
+  "credentials": {},
+  "configuration": {}
+}
+
+Response Schema (201 Created):
+{
+  "integration_id": "string",
+  "system_type": "string",
+  "status": "active"
+}
+
+Error Codes: 400, 401, 403, 422, 500
+
+================================================================================
+6. COMMON ERROR RESPONSE FORMAT
+================================================================================
+
+All error responses follow this format:
+
+{
+  "error": {
+    "code": "string (error code)",
+    "message": "string (human-readable message)",
+    "details": [
+      {
+        "field": "string",
+        "issue": "string"
+      }
+    ],
+    "request_id": "string (UUID)",
+    "timestamp": "string (ISO 8601)"
+  }
+}
+
+================================================================================
+7. RATE LIMITING HEADERS
+================================================================================
+
+All responses include rate limiting headers:
+
+- X-RateLimit-Limit: Maximum requests per window
+- X-RateLimit-Remaining: Remaining requests in current window
+- X-RateLimit-Reset: Timestamp when limit resets
+- Retry-After: Seconds to wait (included in 429 responses)
+
+================================================================================
+8. VERSIONING AND DEPRECATION
+================================================================================
+
+API Versioning:
+- Version included in URL path (/v1/, /v2/)
+- Backward compatibility maintained for minimum 12 months
+- Deprecation notices provided 6 months in advance
+- Sunset header included in deprecated endpoint responses
+
+Deprecation Header Example:
+Sunset: Sat, 31 Dec 2024 23:59:59 GMT
+Link: <https://api.example.com/v2/endpoint>; rel="successor-version"
+
+================================================================================
+END OF API CONTRACT OUTLINE
+================================================================================
