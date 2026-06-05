@@ -1,60 +1,13 @@
-Non-Functional Requirements (NFRs) List
+AI-POWERED LOGISTICS MONITORING SYSTEM
+NON-FUNCTIONAL REQUIREMENTS (NFRs) DOCUMENT
 
-Security
-- All data in transit and at rest is encrypted (TLS 1.2+, AES-256).
-- OAuth2/JWT authentication for all API endpoints.
-- Role-Based Access Control (RBAC) with admin, developer, and auditor roles.
-- Audit logging for all user actions and code generation events.
+================================================================================
+DOCUMENT CONTROL
+================================================================================
 
-Compliance
-- GDPR: Data minimization, user data export and deletion support.
-- ISO 27001: Information security controls implemented.
-- Audit logs retained per compliance policy (min. 1 year).
-
-Performance
-- 95% of code generation requests completed in <2 seconds.
-- Concurrent processing: Minimum 100 simultaneous requests.
-
-Scalability
-- Stateless services support horizontal scaling (Kubernetes autoscaling).
-
-Availability
-- 99.9% uptime SLA.
-- Automated failover and health checks.
-
-Reliability
-- Redundant instances for all services.
-- Automated incident detection and recovery.
-
-Maintainability
-- Modular architecture, documented interfaces.
-- Automated CI/CD pipelines.
-
-Auditability
-- All system actions are logged, searchable, and tamper-evident.
-
-Disaster Recovery
-- Full service restore within 4 hours (RTO).
-- Data loss limited to 1 hour (RPO).
-
-Backup
-- Nightly backups of logs, configurations, and critical data, encrypted at rest.
-
-Monitoring
-- Real-time monitoring via Prometheus/Grafana.
-- Alerting on performance, security, and availability metrics.
-
-Logging
-- Centralized log aggregation (ELK stack).
-- Anomaly detection and alerting.
-
-RBAC
-- Fine-grained access controls enforced at API, service, and data layers.
-
-Other
-- Input validation and output filtering on all interfaces.
-- Regular penetration testing and vulnerability scans.
-- Accessibility: WCAG 2.1 AA compliance for web interfaces.
-- Localization support for international users.
-
-All NFRs are mapped to architectural decisions and system components for traceability.
+Version: 1.0
+Date: 2024
+Status: Final
+Classification: Internal
+Owner: Enterprise Architecture Team
+Reviewers: Security Architecture
